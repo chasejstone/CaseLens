@@ -43,3 +43,4 @@ jobs:
       - uses: actions/checkout@v6
       - run: cp .env.example .env
       - run: docker compose config --quiet
+      - run: docker compose build api web
