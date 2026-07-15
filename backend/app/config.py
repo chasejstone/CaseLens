@@ -7,6 +7,21 @@ from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+INSECURE_JWT_SECRETS = {
+    "development-only-change-this-secret",
+    "replace-with-at-least-24-random-characters",
+}
+INSECURE_BOOTSTRAP_PASSWORDS = {
+    "change-this-password",
+    "replace-with-a-long-admin-password",
+}
+INSECURE_DATABASE_MARKERS = (
+    "caselens:caselens@",
+    "caselens-development",
+    "replace-with-a-database-password",
+)
+
+
 class Settings(BaseSettings):
     app_name: str = "CaseLens"
     environment: str = "development"
@@ -34,10 +49,12 @@ class Settings(BaseSettings):
     @model_validator(mode="after")
     def reject_production_defaults(self) -> "Settings":
         if self.environment.lower() == "production":
-            if self.jwt_secret == "development-only-change-this-secret":
+            if self.jwt_secret in INSECURE_JWT_SECRETS:
                 raise ValueError("JWT_SECRET must be changed in production")
-            if self.bootstrap_admin_password == "change-this-password":
+            if self.bootstrap_admin_password in INSECURE_BOOTSTRAP_PASSWORDS:
                 raise ValueError("BOOTSTRAP_ADMIN_PASSWORD must be changed in production")
+            if any(marker in self.database_url for marker in INSECURE_DATABASE_MARKERS):
+                raise ValueError("DATABASE_URL must not use a placeholder password in production")
             if not self.cookie_secure:
                 raise ValueError("COOKIE_SECURE must be true in production")
         return self

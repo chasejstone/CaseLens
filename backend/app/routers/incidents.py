@@ -33,6 +33,18 @@ def _get_incident(db: Session, incident_id: uuid.UUID) -> Incident:
     return incident
 
 
+def _validate_assignment(db: Session, user: User, assigned_to_id: uuid.UUID | None) -> None:
+    if user.role != Role.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can assign incidents",
+        )
+    if assigned_to_id:
+        assignee = db.get(User, assigned_to_id)
+        if not assignee or assignee.role not in {Role.ADMIN, Role.ANALYST}:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid assignee")
+
+
 @router.get("", response_model=list[IncidentListItem])
 def list_incidents(
     _user: CurrentUser,
@@ -62,9 +74,7 @@ def create_incident(
     db: Session = Depends(get_db),
 ):
     if data.assigned_to_id:
-        assignee = db.get(User, data.assigned_to_id)
-        if not assignee or assignee.role not in {Role.ADMIN, Role.ANALYST}:
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid assignee")
+        _validate_assignment(db, user, data.assigned_to_id)
     case_number = f"CL-{datetime.now(timezone.utc).year}-{uuid.uuid4().hex[:8].upper()}"
     incident = Incident(
         case_number=case_number,
@@ -104,10 +114,8 @@ def update_incident(
 ):
     incident = _get_incident(db, incident_id)
     changes = data.model_dump(exclude_unset=True)
-    if "assigned_to_id" in changes and changes["assigned_to_id"]:
-        assignee = db.get(User, changes["assigned_to_id"])
-        if not assignee or assignee.role not in {Role.ADMIN, Role.ANALYST}:
-            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid assignee")
+    if "assigned_to_id" in changes:
+        _validate_assignment(db, user, changes["assigned_to_id"])
     for key, value in changes.items():
         if key in {"title", "summary"} and isinstance(value, str):
             value = value.strip()

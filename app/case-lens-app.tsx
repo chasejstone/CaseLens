@@ -249,7 +249,7 @@ export function CaseLensApp() {
 }
 
 function Login({ onLogin }: { onLogin: (user: User) => Promise<void> }) {
-  const [email, setEmail] = useState("admin@example.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -262,7 +262,7 @@ function Login({ onLogin }: { onLogin: (user: User) => Promise<void> }) {
     } catch (reason) { setError((reason as Error).message); } finally { setBusy(false); }
   }
 
-  return <main className="login-shell"><section className="login-context"><div className="login-brand">CL</div><p className="eyebrow">Security operations case management</p><h1>Evidence becomes a case. A case becomes a decision.</h1><p>Queue file and packet analysis, preserve investigation context, and see shared indicators across incidents.</p><div className="signal-list"><span><b>01</b> Immutable activity history</span><span><b>02</b> Crucible file analysis</span><span><b>03</b> PacketLens capture analysis</span></div></section><section className="login-card"><div><p className="eyebrow">Authorized access</p><h2>Open CaseLens</h2><p>Use the account provided by your administrator.</p></div><form onSubmit={submit}><label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label><label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required autoFocus /></label>{error && <p className="form-error">{error}</p>}<button className="primary-button full" disabled={busy}>{busy ? "Checking credentials" : "Sign in"}</button></form><small>Access is logged. Contact an administrator if your role is incorrect.</small></section></main>;
+  return <main className="login-shell"><section className="login-context"><div className="login-brand">CL</div><p className="eyebrow">CaseLens security operations</p><h1>Manage security investigations in one place.</h1><p>Review incidents, evidence, analysis jobs, shared indicators, and audit history.</p><div className="signal-list"><span><b>File analysis</b> Crucible static inspection</span><span><b>Packet analysis</b> PacketLens capture review</span><span><b>Audit trail</b> Hash-chained case activity</span></div></section><section className="login-card"><div><p className="eyebrow">Authorized access</p><h2>Sign in to CaseLens</h2><p>Use the account provided by your administrator.</p></div><form onSubmit={submit}><label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required autoFocus /></label><label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} minLength={8} required /></label>{error && <p className="form-error">{error}</p>}<button className="primary-button full" disabled={busy}>{busy ? "Checking credentials" : "Sign in"}</button></form><small>Access is logged. Contact an administrator if your role is incorrect.</small></section></main>;
 }
 
 function NavButton({ active, label, badge, onClick }: { active: boolean; label: string; badge?: number; onClick: () => void }) {
@@ -278,7 +278,7 @@ function Metric({ label, value, note, tone }: { label: string; value: number; no
 }
 
 function PanelTitle({ title, detail }: { title: string; detail: string }) {
-  return <header className="panel-title"><div><h2>{title}</h2><p>{detail}</p></div><span className="live-dot">Live</span></header>;
+  return <header className="panel-title"><div><h2>{title}</h2><p>{detail}</p></div></header>;
 }
 
 function IncidentTable({ incidents, onOpen, expanded = false }: { incidents: Incident[]; onOpen: (id: string) => void; expanded?: boolean }) {

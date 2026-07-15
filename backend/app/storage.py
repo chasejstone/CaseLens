@@ -70,7 +70,7 @@ async def store_upload(upload: UploadFile) -> StoredUpload:
     finally:
         await upload.close()
 
-    kind = EvidenceKind.PCAP if head in PCAP_MAGICS or suffix in {".pcap", ".pcapng"} else EvidenceKind.FILE
+    kind = EvidenceKind.PCAP if head in PCAP_MAGICS else EvidenceKind.FILE
     return StoredUpload(
         original_name=original_name,
         stored_name=stored_name,

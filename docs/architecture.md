@@ -35,7 +35,7 @@ Users are assigned one of three roles: admin, analyst, or read only. The API enf
 2. The API records evidence metadata and an audit entry in PostgreSQL.
 3. An analyst queues a job. Celery publishes it through Redis.
 4. A worker claims the job and selects the adapter from the evidence type.
-5. The adapter runs Crucible or PacketLens with an execution timeout.
+5. The adapter runs the pinned Crucible or PacketLens library without executing uploaded programs.
 6. Findings and extracted entities are committed in one database transaction.
 7. Job completion and failure events are added to the audit chain.
 

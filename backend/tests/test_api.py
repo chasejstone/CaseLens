@@ -37,10 +37,15 @@ def create_user(client: TestClient, email: str, role: str, password: str = "a-st
 
 def test_role_enforcement_and_incident_workflow(client: TestClient) -> None:
     login(client, "admin@example.com", "change-this-password")
-    create_user(client, "analyst@example.com", "analyst")
+    analyst = create_user(client, "analyst@example.com", "analyst")
     create_user(client, "viewer@example.com", "read_only")
 
     login(client, "analyst@example.com", "a-strong-password")
+    denied_assignment = client.post(
+        "/api/incidents",
+        json={"title": "Analyst cannot self-assign", "assigned_to_id": analyst["id"]},
+    )
+    assert denied_assignment.status_code == 403
     created = client.post(
         "/api/incidents",
         json={"title": "Suspicious DNS activity", "summary": "Repeated lookups need review.", "severity": "high"},
@@ -48,6 +53,12 @@ def test_role_enforcement_and_incident_workflow(client: TestClient) -> None:
     assert created.status_code == 201, created.text
     incident = created.json()
     assert incident["case_number"].startswith("CL-")
+
+    denied_reassignment = client.patch(
+        f"/api/incidents/{incident['id']}",
+        json={"assigned_to_id": analyst["id"]},
+    )
+    assert denied_reassignment.status_code == 403
 
     note = client.post(f"/api/incidents/{incident['id']}/notes", json={"body": "Host isolated by desktop support."})
     assert note.status_code == 201
@@ -74,6 +85,13 @@ def test_evidence_upload_queue_and_audit_chain(client: TestClient) -> None:
     evidence = upload.json()
     assert evidence["kind"] == "pcap"
     assert len(evidence["sha256"]) == 64
+
+    misleading_upload = client.post(
+        f"/api/incidents/{incident['id']}/evidence",
+        files={"upload": ("not-a-capture.pcap", b"plain text", "application/vnd.tcpdump.pcap")},
+    )
+    assert misleading_upload.status_code == 201, misleading_upload.text
+    assert misleading_upload.json()["kind"] == "file"
 
     with patch("app.routers.evidence.analyze_evidence.delay", return_value=SimpleNamespace(id="task-123")):
         queued = client.post(f"/api/evidence/{evidence['id']}/analyze")

@@ -13,7 +13,7 @@ CaseLens processes untrusted evidence. Treat the worker, storage volume, and rep
 - Put the worker on a host with no access to internal secrets or administrative networks.
 - Forward container and gateway logs to the organization monitoring system.
 
-Production startup rejects the development JWT secret, development administrator password, and insecure cookie setting.
+Production startup rejects known example secrets, placeholder database passwords, and insecure cookie settings.
 
 ## Authentication and authorization
 
@@ -27,7 +27,7 @@ The Nginx gateway limits repeated login attempts and sets content, frame, referr
 
 Uploads are streamed with a configurable maximum size and named on disk by generated identifiers. The service does not trust browser MIME types when deciding whether a capture is a PCAP. It checks capture magic bytes and calculates SHA-256 during storage.
 
-Analyzer commands use fixed argument lists and timeouts. Uploaded files are never passed through a shell. Crucible dynamic execution is disabled. Stronger deployments should add container seccomp or AppArmor rules, a read-only worker root filesystem, CPU and memory limits, and an isolated analysis subnet.
+Analyzers are called through pinned Python libraries. Uploaded files are never passed through a shell. Crucible dynamic execution is disabled. Stronger deployments should add task time limits, container seccomp or AppArmor rules, a read-only worker root filesystem, CPU and memory limits, and an isolated analysis subnet.
 
 ## Audit guarantees
 
