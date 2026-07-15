@@ -1,0 +1,15 @@
+fastapi>=0.116,<1
+uvicorn[standard]>=0.35,<1
+SQLAlchemy>=2.0.45,<2.1
+psycopg[binary]>=3.2,<4
+alembic>=1.16,<2
+celery[redis]>=5.6,<6
+pydantic-settings>=2.10,<3
+pwdlib[argon2]>=0.2,<1
+PyJWT>=2.10,<3
+python-multipart>=0.0.20,<1
+email-validator>=2.2,<3
+Jinja2>=3.1,<4
+aiofiles>=24.1,<25
+crucible @ git+https://github.com/chasejstone/Crucible.git@11a6f11c9d6a0e095a4c2a7587ddb12ff7ddf23c
+packetlens @ git+https://github.com/chasejstone/PacketLens.git@8825f8abc1c8f89d04bebf8799d9f6ced516cb89
