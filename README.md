@@ -79,7 +79,9 @@ Run the checks:
 ```powershell
 npm test
 npm run lint
-.\.venv\Scripts\python.exe -m pytest backend\tests -q
+Push-Location backend
+& ..\.venv\Scripts\python.exe -m pytest tests -q
+Pop-Location
 docker compose config
 ```
 
